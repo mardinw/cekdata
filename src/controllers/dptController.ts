@@ -11,24 +11,17 @@ export const getAll = async (c: Context) => {
     return c.json(data);
 };
 
-export const getNameAndNik = async (c: Context) => {
-    const name = c.req.query('nama');
-    const nik = c.req.query('nik');
-
-    const data = await getDPTByNameAndNik(name, nik);
-    console.log(data);
-    return c.json(data);
-}
-
 export const getMatch = async (c: Context) => {
     const file = c.req.query('file');
     const user = c.req.query('user');
+
+    const allMatchedData = [];
 
     const dataImport = await getDataImport(file, user);
     for( const item of dataImport) {
         const { nama, dob} = item;
         const matchedData = await getMatchData(nama, dob);
-        console.log(matchedData);
+        allMatchedData.push(...matchedData);
     }
-    return c.json(dataImport);
+    return c.json(allMatchedData);
 };
