@@ -3,8 +3,10 @@ import { db } from "../utils/db.js";
 
 export const getMatchData = async(nama?: string, dob?: string) => {
     const [rows] = await db.query<RowDataPacket[]>(
-        'SELECT t1.nama AS nama_data, t1.kecamatan AS kecamatan_data, t1.kelurahan AS kelurahan_data, t2.nama AS nama_match, t2.kecamatan AS kecamatan_match, t2.kelurahan AS kelurahan_match FROM data_import t1 JOIN dpt_kpu t2 ON t2.nama LIKE CONCAT(?) AND t2.nik LIKE CONCAT(?) WHERE t1.nama LIKE ?', 
-        [`${nama}%`, `%${dob}%`, `${nama}%`]);
+        'SELECT t1.nama as nama_data, t1.kecamatan as kecamatan_data, t1.kelurahan as kelurahan_data, dpt_kpu.nama, dpt_kpu.kecamatan, dpt_kpu.kelurahan FROM dpt_kpu JOIN tanggal_lahir ON dpt_kpu.id = tanggal_lahir.dpt_id JOIN data_import t1 on tanggal_lahir.tanggal_lahir = t1.ttl WHERE tanggal_lahir.tanggal_lahir = ? AND dpt_kpu.nama LIKE ?',
+        [`${dob}`, `${nama}%`]
+    );
+
 
     return rows;
 }

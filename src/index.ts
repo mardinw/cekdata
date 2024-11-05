@@ -1,8 +1,13 @@
 import { serve } from '@hono/node-server'
 import { Hono } from 'hono'
 import routes from './routes/routes.js'
+import { logger } from 'hono/logger'
+import { prettyJSON } from 'hono/pretty-json'
 
 const app = new Hono()
+
+app.use(logger());
+app.use(prettyJSON( { space: 4}));
 
 app.route('/', routes)
 
