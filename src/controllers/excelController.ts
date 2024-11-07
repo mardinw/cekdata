@@ -39,6 +39,8 @@ export const excelUpload = async(c: Context) => {
         const dataToInsert = await uploader.handleExcelUpload(fileBuffer, fileNameNow, uuid);
         try {
             await createDataImport(dataToInsert);
+            
+            // ketika berhasil import file maka dihapus
             await fs.promises.unlink(filePath);
             return c.json({message: 'file berhasil di upload dan data dimasukkan ke database'}, 200);
         } catch (error) {
