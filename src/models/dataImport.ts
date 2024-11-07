@@ -46,14 +46,15 @@ export const getDataNamaAndDob = async (file?: string, users?: string) => {
 
 export const createDataImport = async(
     nama : string, 
-    dob: string, 
+    dob: string,
+    ttl: string, 
     kecamatan: string, 
     kelurahan: string,
     file: string,
     users: string
 ) => {
-    const query = 'INSERT INTO data_import(nama, dob, kecamatan, kelurahan, file, users) VALUES (?, ?, ?, ?, ?, ?)';
-    const [result] = await db.query(query, [nama, dob, kecamatan, kelurahan, file, users])
+    const query = 'INSERT INTO data_import(nama, dob, ttl, kecamatan, kelurahan, file, users) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    const [result] = await db.query(query, [nama, dob, ttl, kecamatan, kelurahan, file, users])
     return result;
 }
 
