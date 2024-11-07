@@ -1,8 +1,7 @@
 import type { RowDataPacket } from "mysql2";
 import { db } from "../utils/db.js"
-import { formatDate } from "../helpers/formatDate.js";
-import { processDOBAndGender } from "../helpers/processDOBAndGender.js";
 import type { DataImport } from "../dtos/dataImport.js";
+
 
 export const getDataImport = async (file?: string, users?: string) => {
     const [rows] = await db.query<RowDataPacket[]>(
@@ -10,10 +9,11 @@ export const getDataImport = async (file?: string, users?: string) => {
         [file, users]
     );
 
+    
     const data: DataImport[] = rows.map(row => ({
         id: row.id,
         nama: row.nama,
-        dob: formatDate(row.dob),
+        ttl: row.ttl,
         kecamatan: row.kecamatan,
         kelurahan: row.kelurahan,
         file: row.file,
@@ -21,40 +21,13 @@ export const getDataImport = async (file?: string, users?: string) => {
         gender: row.gender
     }))
 
-    return processDOBAndGender(data);
+    return data;
 }
 
-export const getDataNamaAndDob = async (file?: string, users?: string) => {
-    const [rows] = await db.query<RowDataPacket[]>(
-        'SELECT * FROM data_import WHERE file = ? AND users = ?',
-        [file, users]
-    );
 
-    const data: DataImport[] = rows.map(row => ({
-        id: row.id,
-        nama: row.nama,
-        dob: formatDate(row.dob),
-        kecamatan: row.kecamatan,
-        kelurahan: row.kelurahan,
-        file: row.file,
-        users: row.users,
-        gender: row.gender
-    }))
-
-    return processDOBAndGender(data);
-}
-
-export const createDataImport = async(
-    nama : string, 
-    dob: string,
-    ttl: string, 
-    kecamatan: string, 
-    kelurahan: string,
-    file: string,
-    users: string
-) => {
-    const query = 'INSERT INTO data_import(nama, dob, ttl, kecamatan, kelurahan, file, users) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    const [result] = await db.query(query, [nama, dob, ttl, kecamatan, kelurahan, file, users])
+export const createDataImport = async(dataToInsert: string[][]) => {
+    const query = 'INSERT INTO data_import(nama, dob, gender, kecamatan, kelurahan, ttl, file, users) VALUES ?';
+    const [result] = await db.query(query, [dataToInsert])
     return result;
 }
 

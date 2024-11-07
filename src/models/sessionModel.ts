@@ -2,12 +2,12 @@ import type { QueryResult, ResultSetHeader } from "mysql2";
 import { db } from "../utils/db.js";
 
 export const insertSessions = async(
-    userId: number,
+    uuid: number,
     token: string,
     expireAt: number
 ) => {
     const query = 'INSERT INTO sessions (user_id, token, expires_at) VALUES( ?, ?, ?)';
-    const [result] = await db.query(query, [userId, token, expireAt] );
+    const [result] = await db.query(query, [uuid, token, expireAt] );
     return result;
 }
 
@@ -34,9 +34,9 @@ export const findSessionByTokenId = async (token: string) : Promise<{expire_at: 
     return null;
 }
 
-export const findSessionByUserId = async(userId: number): Promise<{token: string} | null> => {
+export const findSessionByUserId = async(uuid: number): Promise<{token: string} | null> => {
     const query = 'SELECT token FROM sessions WHERE user_id = ? LIMIT 1';
-    const [result] = await db.query(query, [userId]);
+    const [result] = await db.query(query, [uuid]);
 
     if(Array.isArray(result) && result.length > 0) {
         return result[0] as { token: string};

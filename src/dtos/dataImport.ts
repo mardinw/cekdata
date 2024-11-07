@@ -1,7 +1,7 @@
 export interface DataImport {
     id: number;
     nama: string;
-    dob: string;
+    ttl: string;
     kecamatan: string;
     kelurahan: string;
     file: string;

@@ -1,6 +1,6 @@
 import type { Context, Next } from "hono";
 import { verify } from "hono/jwt";
-import { findSessionByTokenId, findSessionByUserId } from "../models/sessionModel.js";
+import { findSessionByTokenId} from "../models/sessionModel.js";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 
@@ -12,6 +12,9 @@ export const authMiddleware = async(c: Context, next: Next) => {
 
     const token = authorization.split(' ')[1];
     const session = await findSessionByTokenId(token);
+    const decoded = await verify(token, JWT_SECRET);
+    c.set('uuid', decoded.uuid);
+     
     if(!session || session.expire_at < Math.floor(Date.now()/ 1000)) {
         return c.json({ message: 'invalid or expired token'}, 401);
     }

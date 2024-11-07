@@ -1,18 +1,15 @@
-import type { DataImport } from "../dtos/dataImport.js";
 
-export const processDOBAndGender = (data: DataImport[]) => {
-    return data.map(item => {
-        let processDOB = item.dob;
+export const processDOBAndGender = (dob: string, gender: string): string => {
+    const date = new Date(dob);
+    let day = date.getDate();
+    const month = date.getMonth() + 1;
+    const year = date.getFullYear() % 100;
 
-        // check if gender is "P"
-        if (item.gender === "P") {
-            const dayPart = parseInt(item.dob.slice(0,2)) + 40;
-            processDOB = `${dayPart.toString().padStart(2, '0')}${item.dob.slice(2)}`;
-        } 
+    if (gender === 'P') {
+        day += 40;
+    }
 
-        return {
-            ...item,
-            dob: processDOB
-        };
-    });
+    // format tanggal menjadi ddmmyy
+    const ttl = `${day.toString().padStart(2, '0')}${month.toString().padStart(2, '0')}${year.toString().padStart(2, '0')}`;
+    return ttl;
 }

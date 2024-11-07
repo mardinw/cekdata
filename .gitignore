@@ -14,7 +14,8 @@ node_modules/
 # env
 .env
 .env.production
-
+# uploads
+uploads/*
 # logs
 logs/
 *.log
