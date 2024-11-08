@@ -30,4 +30,30 @@ export class ExcelKit {
 
         return dataToInsert;
     }
+
+    public async handleExportToExcel(allMatchedData: any[]) {
+        const workbook = new Exceljs.Workbook()
+        // create sheet
+        const worksheet = workbook.addWorksheet("Match Data");
+
+        // Menambahkan header kolom
+        worksheet.columns = [
+            { header: 'Nama Data', key: 'nama_data', width: 20 },
+            { header: 'Kecamatan Data', key: 'kecamatan_data', width: 20 },
+            { header: 'Kelurahan Data', key: 'kelurahan_data', width: 20 },
+            { header: 'Nama', key: 'nama', width: 20 },
+            { header: 'Kecamatan', key: 'kecamatan', width: 20 },
+            { header: 'Kelurahan', key: 'kelurahan', width: 20 }
+        ];
+
+        // memassukan data array ke worksheet
+        allMatchedData.forEach((data) => {
+            worksheet.addRow(data);
+        });
+
+        // konversi workbook ke buffer
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        return buffer;
+    }
 }

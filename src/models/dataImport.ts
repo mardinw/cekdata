@@ -24,6 +24,17 @@ export const getDataImport = async (file?: string, users?: string) => {
     return data;
 }
 
+export const getDataFileByUUIDOnly = async( uuid: string) => {
+    const query = 'SELECT count(file) as jumlah_data, file as nama_file, users FROM data_import WHERE users = ?';
+    const [result] = await db.query(query, [uuid])
+    return result;
+}
+
+export const previewDataFileByUUID = async( uuid: string, fileName?: string) => {
+    const query = 'SELECT nama, dob, kecamatan, kelurahan, file FROM data_import where users = ? AND file = ?';
+    const [result] = await db.query(query, [uuid, fileName]);
+    return result;
+}
 
 export const createDataImport = async(dataToInsert: string[][]) => {
     const query = 'INSERT INTO data_import(nama, dob, gender, kecamatan, kelurahan, ttl, file, users) VALUES ?';

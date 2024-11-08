@@ -1,5 +1,6 @@
-import type { QueryResult, ResultSetHeader } from "mysql2";
+import type { ResultSetHeader } from "mysql2";
 import { db } from "../utils/db.js";
+import cron from 'node-cron';
 
 export const insertSessions = async(
     uuid: number,
@@ -47,8 +48,12 @@ export const findSessionByUserId = async(uuid: number): Promise<{token: string} 
 
 export const deleteExpiredSessions = async () => {
     const now = Math.floor(Date.now() / 1000);
-    const query = 'DELETE FROM sessions WHERE expires_at = ?';
+    const query = 'DELETE FROM sessions WHERE expires_at < ?';
     await db.query(query, [now]);
 }
 
-setInterval(deleteExpiredSessions, 60 * 60 * 1000);
+// jadwal schedule auto delete
+cron.schedule('0 * * * *', () => {
+    console.log('Running scheduled job to delete expired sessions');
+    deleteExpiredSessions();
+})
