@@ -16,9 +16,9 @@ app.use(logger());
 app.use(prettyJSON( { space: 4}));
 
 // protect bagian ini
-app.use('/data/*', authMiddleware);
+app.use('/v1/data/*', authMiddleware);
 
-app.route('/', routes)
+app.route('/v1', routes)
 
 const port = 3000
 console.log(`Server is running on port ${port}`)

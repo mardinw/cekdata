@@ -21,3 +21,7 @@ export const loginUser = async (
    
     return result;
 }
+
+export const updateUser = async () => {}
+
+export const deleteUser = async () => {}

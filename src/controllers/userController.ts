@@ -7,13 +7,14 @@ import { verify } from "hono/jwt";
 
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
-const JWT_EXPIRATION = 60 * 60;
+// ubah menjadi 5 menit
+const JWT_EXPIRATION = 5 * 60;
 
 export const registerAccount = async( c: Context) => {
-    const { name, email, password} = await c.req.json();
+    const { username, email, password} = await c.req.json();
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await registerUser(name, email, hashedPassword);
+    await registerUser(username, email, hashedPassword);
 
     return c.json({
         message: 'user registered successfully'
