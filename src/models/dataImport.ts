@@ -2,7 +2,6 @@ import type { RowDataPacket } from "mysql2";
 import { db } from "../utils/db.js"
 import type { DataImport } from "../dtos/dataImport.js";
 
-
 export const getDataImport = async (file?: string, users?: string) => {
     const [rows] = await db.query<RowDataPacket[]>(
         'SELECT * FROM data_import WHERE file = ? AND users = ?',
