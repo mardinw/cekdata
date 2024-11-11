@@ -2,9 +2,8 @@ import type { Context } from "hono";
 import path from "path";
 import fs from "fs";
 import { ExcelKit } from "../lib/excelKit.js";
-import { createDataImport, getDataFileByUUIDOnly, getDataImport, previewDataFileByUUID } from "../models/dataImport.js";
+import { createDataImport, getDataFileByUUIDOnly, getDataImport, getFileDataImport, previewDataFileByUUID } from "../models/dataImport.js";
 import { getMatchData } from "../models/matchData.js";
-import { buffer } from "stream/consumers";
 
 
 export const excelUpload = async(ctx: Context) => {
@@ -115,19 +114,37 @@ export const exportMatchToExcel = async (ctx: Context) => {
 export const downloadSample = async (ctx: Context) => {
     // cek uuid yang login
     const uuid = ctx.get('uuid');
-
-    const fileName = 'sample.xlsx'
-    const filePath = path.join(process.cwd(), 'sample', fileName);
-
-    // Pastikan dulu file ada atau tidak
-    if(!fs.existsSync(filePath)) {
-        return ctx.text('File not found', 404);
+    if(!uuid) {
+        return ctx.json({message: 'uuid not found'}, 404);
     }
 
-    // baca file sebagai buffer
-    const fileBuffer =  await fs.readFileSync(filePath);
+    const handler = new ExcelKit();
+    const fileName = 'sample.xlsx'
+    try {
 
-    ctx.header('Content-Disposition', `attachment; filename="${fileName}"`);
-    ctx.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    return ctx.body(fileBuffer, 200);
+        const result = await handler.handleCreateSampleExcel();
+
+        ctx.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        ctx.header('Content-Disposition', `attachment; filename="${fileName}.xlsx"`);
+        return ctx.body(result);
+    } catch(error) {
+        console.error('Error:', error);
+        return ctx.text('Error downloading file', 500);
+    }
+}
+
+export const getFile = async (ctx: Context) => {
+    // cek uuid yang login
+    const uuid = ctx.get('uuid');
+    if(!uuid) {
+        return ctx.json({message: 'uuid not found'}, 404);
+    }
+
+    try {
+        const res = await getFileDataImport(uuid);
+        return ctx.json(res);
+    } catch (error) {
+        console.error('Error:', error);
+        return ctx.text('Error get file', 500);
+    }
 }

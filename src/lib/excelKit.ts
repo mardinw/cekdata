@@ -1,5 +1,6 @@
 import Exceljs from 'exceljs';
 import { processDOBAndGender } from '../helpers/processDOBAndGender.js';
+import path from 'path';
 
 export class ExcelKit {
     public async handleExcelUpload(file: ArrayBuffer, fileName: string, uuid: string) {
@@ -54,6 +55,33 @@ export class ExcelKit {
         // konversi workbook ke buffer
         const buffer = await workbook.xlsx.writeBuffer();
 
+        return buffer;
+    }
+
+    public async handleCreateSampleExcel() {
+        const workbook = new Exceljs.Workbook();
+        const worksheet = workbook.addWorksheet('Sheet 1');
+
+        // Menambahkan kolom header
+        worksheet.columns = [
+            { header: 'nama', key: 'nama', width: 30 },
+            { header: 'dob', key: 'dob', width: 30 },
+            { header: 'gender', key: 'gender', width: 10 },
+            { header: 'kecamatan', key: 'kecamatan', width: 30 },
+            { header: 'kelurahan', key: 'kelurahan', width: 30 },
+        ];
+
+        // Menambahkan data
+        worksheet.addRow({ 
+            nama: 'mardin', 
+            dob: '1991-01-17', 
+            gender: 'L', 
+            kecamatan: 'kiaracondong',
+            kelurahan: 'sukapura',
+        });
+
+        const buffer = await workbook.xlsx.writeBuffer();
+        console.log('File sample.xlsx created.');
         return buffer;
     }
 }

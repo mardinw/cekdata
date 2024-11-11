@@ -86,6 +86,12 @@ export const updateDataImport = async(
     return rows;
 }
 
+export const getFileDataImport = async(uuid: string) => {
+    const query = 'SELECT DISTINCT file FROM data_import WHERE users = ?';
+    const [result] = await db.query(query, [uuid]);
+    return result;
+}
+
 export const deleteDataImport = async(file: string) => {
     const query = 'DELETE FROM data_import WHERE file = ?';
     const [result] = await db.query(query, [file]);
