@@ -4,6 +4,7 @@ import fs from "fs";
 import { ExcelKit } from "../lib/excelKit.js";
 import { createDataImport, getDataFileByUUIDOnly, getDataImport, previewDataFileByUUID } from "../models/dataImport.js";
 import { getMatchData } from "../models/matchData.js";
+import { buffer } from "stream/consumers";
 
 
 export const excelUpload = async(ctx: Context) => {
@@ -109,4 +110,24 @@ export const exportMatchToExcel = async (ctx: Context) => {
     } catch(error) {
         return ctx.json({message: error});
     }
+}
+
+export const downloadSample = async (ctx: Context) => {
+    // cek uuid yang login
+    const uuid = ctx.get('uuid');
+
+    const fileName = 'sample.xlsx'
+    const filePath = path.join(process.cwd(), 'sample', fileName);
+
+    // Pastikan dulu file ada atau tidak
+    if(!fs.existsSync(filePath)) {
+        return ctx.text('File not found', 404);
+    }
+
+    // baca file sebagai buffer
+    const fileBuffer =  await fs.readFileSync(filePath);
+
+    ctx.header('Content-Disposition', `attachment; filename="${fileName}"`);
+    ctx.header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    return ctx.body(fileBuffer, 200);
 }

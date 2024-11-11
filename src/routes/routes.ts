@@ -21,5 +21,6 @@ routes.post('/data/upload', excelUpload);
 // bagian data excel ada disini
 routes.get('/data/read', previewFileExcel);
 routes.get('/data/all', listFileExcel);
+routes.get('/data/sample', )
 
 export default routes;
