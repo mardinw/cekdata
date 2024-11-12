@@ -2,15 +2,6 @@ import { getDataImport } from './../models/dataImport.js';
 import type { Context } from "hono";
 import { getMatchData } from '../models/matchData.js';
 
-/*export const getAll = async (ctx: Context) => {
-    const file = ctx.req.query('file');
-
-    // cek uuid yang login
-    const uuid = ctx.get('uuid');
-    const data = await getDataImport(file, uuid);
-    return ctx.json(data);
-};
-*/
 
 export const getMatch = async (ctx: Context) => {
     const file = ctx.req.query('file');

@@ -2,7 +2,7 @@ import type { Context } from "hono";
 import path from "path";
 import fs from "fs";
 import { ExcelKit } from "../lib/excelKit.js";
-import { createDataImport, getDataFileByUUIDOnly, getDataImport, getFileDataImport, previewDataFileByUUID } from "../models/dataImport.js";
+import { createDataImport, deleteDataImport, getDataFileByUUIDOnly, getDataImport, getFileDataImport, previewDataFileByUUID } from "../models/dataImport.js";
 import { getMatchData } from "../models/matchData.js";
 
 
@@ -142,6 +142,24 @@ export const getFile = async (ctx: Context) => {
 
     try {
         const res = await getFileDataImport(uuid);
+        return ctx.json(res);
+    } catch (error) {
+        console.error('Error:', error);
+        return ctx.text('Error get file', 500);
+    }
+}
+
+export const deleteFile = async(ctx: Context) => {
+    // ambil file yang akan di delete
+    const file = ctx.req.query('file');
+    // ambil juga uuid untuk mengecek
+    const uuid = ctx.get('uuid');
+    if(!uuid) {
+        return ctx.json({message: 'uuid not found'}, 404);
+    }
+
+    try {
+        const res = await deleteDataImport(file);
         return ctx.json(res);
     } catch (error) {
         console.error('Error:', error);

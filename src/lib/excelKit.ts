@@ -42,9 +42,9 @@ export class ExcelKit {
             { header: 'Nama Data', key: 'nama_data', width: 20 },
             { header: 'Kecamatan Data', key: 'kecamatan_data', width: 20 },
             { header: 'Kelurahan Data', key: 'kelurahan_data', width: 20 },
-            { header: 'Nama', key: 'nama', width: 20 },
-            { header: 'Kecamatan', key: 'kecamatan', width: 20 },
-            { header: 'Kelurahan', key: 'kelurahan', width: 20 }
+            { header: 'Nama Match', key: 'nama', width: 20 },
+            { header: 'Kecamatan Match', key: 'kecamatan', width: 20 },
+            { header: 'Kelurahan Match', key: 'kelurahan', width: 20 }
         ];
 
         // memassukan data array ke worksheet

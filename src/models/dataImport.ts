@@ -92,7 +92,7 @@ export const getFileDataImport = async(uuid: string) => {
     return result;
 }
 
-export const deleteDataImport = async(file: string) => {
+export const deleteDataImport = async(file?: string) => {
     const query = 'DELETE FROM data_import WHERE file = ?';
     const [result] = await db.query(query, [file]);
     return result;
