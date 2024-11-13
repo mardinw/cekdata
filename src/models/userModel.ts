@@ -22,6 +22,16 @@ export const loginUser = async (
     return result;
 }
 
-export const updateUser = async () => {}
+export const updateUserPassword = async (password: string, uuid: string) => {
+    const query = 'UPDATE users SET password = ? WHERE id = ?';
+    const [result] = await db.query(query, [password, uuid]);
+    return result;
+}
 
 export const deleteUser = async () => {}
+
+export const listUser = async () => {
+    const query = 'SELECT id as uuid, name, email, role, is_active FROM users';
+    const [result] = await db.query<RowDataPacket[]>(query);
+    return result;
+}

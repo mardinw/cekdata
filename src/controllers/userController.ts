@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import bcrypt from 'bcrypt';
-import { loginUser, registerUser } from "../models/userModel.js";
+import { listUser, loginUser, registerUser } from "../models/userModel.js";
 import { createToken } from "../helpers/token.js";
 import { deleteSessions, findSessionByUserId, insertSessions } from "../models/sessionModel.js";
 import { verify } from "hono/jwt";
@@ -72,4 +72,19 @@ export const logoutAccount = async (ctx: Context) => {
     } else {
         return ctx.json({message: 'no token provided'}, 400);
     }
+}
+
+export const listAccount = async (ctx: Context) => {
+    const uuid = ctx.get('uuid');
+    if(!uuid) {
+        return ctx.json({message: 'uuid not found'}, 404);
+    }
+    try {
+        const result = await listUser();
+        return ctx.json(result);        
+    } catch (error) {
+        console.error('error on process:', error);
+        return ctx.json({message : error});
+    }
+
 }
