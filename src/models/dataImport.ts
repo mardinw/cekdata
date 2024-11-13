@@ -24,7 +24,7 @@ export const getDataImport = async (file?: string, users?: string) => {
 }
 
 export const getDataFileByUUIDOnly = async( uuid: string) => {
-    const query = 'SELECT count(file) as jumlah_data, file as nama_file, users FROM data_import WHERE users = ?';
+    const query = 'SELECT count(file) as jumlah_data, file as nama_file, users FROM data_import WHERE users = ? GROUP BY file, users';
     const [result] = await db.query(query, [uuid])
     return result;
 }

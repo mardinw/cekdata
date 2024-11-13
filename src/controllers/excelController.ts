@@ -159,8 +159,8 @@ export const deleteFile = async(ctx: Context) => {
     }
 
     try {
-        const res = await deleteDataImport(file);
-        return ctx.json(res);
+        await deleteDataImport(file);
+        return ctx.json({message: "file successfully delete"});
     } catch (error) {
         console.error('Error:', error);
         return ctx.text('Error get file', 500);

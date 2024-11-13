@@ -11,10 +11,10 @@ const JWT_SECRET = process.env.JWT_SECRET as string;
 const JWT_EXPIRATION = 5 * 60;
 
 export const registerAccount = async( ctx: Context) => {
-    const { username, email, password} = await ctx.req.json();
+    const { username, password} = await ctx.req.json();
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    await registerUser(username, email, hashedPassword);
+    await registerUser(username, hashedPassword);
 
     return ctx.json({
         message: 'user registered successfully'
@@ -22,10 +22,10 @@ export const registerAccount = async( ctx: Context) => {
 }
 
 export const loginAccount = async (ctx: Context) => {
-    const {email, password} : {email: string; password: string} = await ctx.req.json();
+    const {username, password} : {username: string; password: string} = await ctx.req.json();
 
     // cari user dari email
-    const users = await loginUser(email);
+    const users = await loginUser(username);
 
     const user = users[0];
 
