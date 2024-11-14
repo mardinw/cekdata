@@ -13,10 +13,10 @@ export const registerUser = async (
 }
 
 export const loginUser = async (
-    email: string
+    username: string
 ) => {
     const query = 'SELECT * FROM users WHERE name = ?';
-    const [result] = await db.query<RowDataPacket[]>(query, email);
+    const [result] = await db.query<RowDataPacket[]>(query, username);
    
     return result;
 }
@@ -27,10 +27,14 @@ export const updateUserPassword = async (password: string, uuid: string) => {
     return result;
 }
 
-export const deleteUser = async () => {}
+export const deleteUser = async (uuid: string) => {
+    const query = 'DELETE FROM users WHERE id = ?';
+    const [result] = await db.query(query, uuid);
+    return result;
+}
 
 export const listUser = async () => {
-    const query = 'SELECT id as uuid, name, email, role, is_active FROM users';
+    const query = 'SELECT id as uuid, name, role, is_active FROM users';
     const [result] = await db.query<RowDataPacket[]>(query);
     return result;
 }

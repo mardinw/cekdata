@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 import bcrypt from 'bcrypt';
-import { listUser, loginUser, registerUser } from "../models/userModel.js";
+import { deleteUser, listUser, loginUser, registerUser } from "../models/userModel.js";
 import { createToken } from "../helpers/token.js";
 import { deleteSessions, findSessionByUserId, insertSessions } from "../models/sessionModel.js";
 import { verify } from "hono/jwt";
@@ -45,7 +45,7 @@ export const loginAccount = async (ctx: Context) => {
 
     const expiresAt = Math.floor(Date.now() / 1000) + JWT_EXPIRATION;
 
-    const token = await createToken(user.id, expiresAt, JWT_SECRET);
+    const token = await createToken(user.id, user.role, expiresAt, JWT_SECRET);
 
     // simpan token sesi ke database dengan format unixtimestamp
     const saveSession = await insertSessions(user.id, token, expiresAt);
@@ -87,4 +87,21 @@ export const listAccount = async (ctx: Context) => {
         return ctx.json({message : error});
     }
 
+}
+
+export const deleteAccount = async (ctx: Context) => {
+    const uuid = ctx.get('uuid');
+    const user = ctx.req.query('uuid') as string;
+
+    if(!uuid) {
+        return ctx.json({message: 'uuid not found'}, 404);
+    }
+
+    try {
+        await deleteUser(user);
+        return ctx.json({message: 'delete user success'}, 200);
+    } catch(error) {
+        console.error('error on process delete:', error);
+        return ctx.json({message: error});
+    }
 }
