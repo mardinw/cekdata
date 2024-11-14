@@ -1,6 +1,6 @@
-import type { Context } from "hono";
+import type { Context, Next } from "hono";
 import bcrypt from 'bcrypt';
-import { deleteUser, listUser, loginUser, registerUser } from "../models/userModel.js";
+import { deleteUser, getRoleUser, listUser, loginUser, registerUser, updateUser } from "../models/userModel.js";
 import { createToken } from "../helpers/token.js";
 import { deleteSessions, findSessionByUserId, insertSessions } from "../models/sessionModel.js";
 import { verify } from "hono/jwt";
@@ -89,19 +89,77 @@ export const listAccount = async (ctx: Context) => {
 
 }
 
-export const deleteAccount = async (ctx: Context) => {
+export const deleteAccount = async (ctx: Context, next: Next) => {
     const uuid = ctx.get('uuid');
-    const user = ctx.req.query('uuid') as string;
+    const users = ctx.req.query('uuid') as string;
 
     if(!uuid) {
         return ctx.json({message: 'uuid not found'}, 404);
     }
 
-    try {
-        await deleteUser(user);
-        return ctx.json({message: 'delete user success'}, 200);
-    } catch(error) {
-        console.error('error on process delete:', error);
-        return ctx.json({message: error});
+    let userRole = "";
+
+    const roleIdCheck = await getRoleUser(uuid);
+    roleIdCheck.forEach(user => {
+        userRole = user.role;
+    })
+
+    if(users === uuid || userRole === 'admin' ) {
+        try {
+            await deleteUser(users);
+            return ctx.json({message: 'delete user success'}, 200);
+        } catch(error) {
+            console.error('error on process delete:', error);
+            return ctx.json({message: error});
+        }
+    } else {
+        return ctx.json({message: 'forbidden access'}, 403)
+    }
+    
+}
+
+export const updateAccount = async( ctx: Context) => {
+    const { username, password, role, isActive} = await ctx.req.json();
+    const filter: {username?: string, password?: string, role?: string, isActive?: number} = {};
+    const users = ctx.req.query('uuid') as string;
+
+    // Hanya tambahkan nilai ke filter jika tidak undefined
+    if (username) {
+        filter.username = username;
+    }
+
+    if (password) {
+        // Hash password jika ada nilai baru yang diberikan
+        filter.password = await bcrypt.hash(password, 10);
+    }
+
+    if (role) {
+        filter.role = role;
+    }
+
+    if(isActive) {
+        filter.isActive = isActive;
+    }
+
+    const uuid = ctx.get('uuid');
+    if(!uuid) {
+        return ctx.json({message: 'uuid not found'}, 404);
+    }
+    
+    let userRole = "";
+
+    const roleIdCheck = await getRoleUser(uuid);
+    roleIdCheck.forEach(user => {
+        userRole = user.role;
+    })
+
+    if(users === uuid || userRole === 'admin' ) {
+        try {
+            await updateUser(filter, users);
+            return ctx.json({message: 'update user success'}, 200);
+        } catch(error) {
+            console.error('error on process update:', error);
+            return ctx.json({message: error});
+        }
     }
 }

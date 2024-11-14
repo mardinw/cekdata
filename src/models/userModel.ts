@@ -21,15 +21,15 @@ export const loginUser = async (
     return result;
 }
 
-export const updateUserPassword = async (password: string, uuid: string) => {
-    const query = 'UPDATE users SET password = ? WHERE id = ?';
-    const [result] = await db.query(query, [password, uuid]);
-    return result;
-}
-
 export const deleteUser = async (uuid: string) => {
     const query = 'DELETE FROM users WHERE id = ?';
     const [result] = await db.query(query, uuid);
+    return result;
+}
+
+export const getRoleUser = async(uuid?: string) => {
+    const query = 'SELECT role from users where id = ?';
+    const [result] = await db.query<RowDataPacket[]>(query, uuid);
     return result;
 }
 
@@ -37,4 +37,57 @@ export const listUser = async () => {
     const query = 'SELECT id as uuid, name, role, is_active FROM users';
     const [result] = await db.query<RowDataPacket[]>(query);
     return result;
+}
+
+export const updateUser = async(
+    filter?: {
+        username?: string,
+        password?: string,
+        role?: string,
+        isActive?: number,
+    },
+    uuid?: string
+) => {
+    let query = 'UPDATE users';
+    let params: (string|number)[] = [];
+
+    if(filter) {
+        const conditions: string[] =[];
+
+        if(filter.username !== undefined) {
+            conditions.push('name = ?');
+            params.push(filter.username);
+        }
+
+        if(filter.password !== undefined) {
+            conditions.push('password = ?');
+            params.push(filter.password);
+        }
+
+        if(filter.role !== undefined) {
+            conditions.push('role = ?');
+            params.push(filter.role);
+        }
+
+        if(filter.isActive !== undefined) {
+            conditions.push('is_active = ?');
+            params.push(filter.isActive);
+        }
+
+        if(conditions.length > 0) {
+            query += ' SET ' + conditions.join(', ');
+        }
+    }
+
+    // cek kondisi jika uuid tersedia
+    if(uuid) {
+        query += ' WHERE id = ?';
+        params.push(uuid);
+    } else {
+        throw new Error('UUID is required to update user.');
+    }
+
+    // eksekusi query
+    const [rows] = await db.query(query, params)
+    return rows;
 }

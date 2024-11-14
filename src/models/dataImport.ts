@@ -49,7 +49,7 @@ export const updateDataImport = async(
         kelurahan?: string,
     },
     file?: string,
-    users?: string
+    uuid?: string
 ) => {
     let query = 'UPDATE data_import';
     let params: string[] = [];
@@ -81,7 +81,22 @@ export const updateDataImport = async(
             query += ' SET ' + conditions.join(', ');
         }
     }
+    // cek kondisi jika uuid tersedia
+    if(uuid) {
+        query += ' WHERE id = ?';
+        params.push(uuid);
+    } else {
+        throw new Error('UUID is required to update user.');
+    }
+    
+    if(file) {
+        query += ' AND file = ?';
+        params.push(file);
+    } else {
+        throw new Error('UUID is required to update user.');
+    }
 
+    // eksekusi query
     const [rows] = await db.query(query, params);
     return rows;
 }

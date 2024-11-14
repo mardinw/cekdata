@@ -8,6 +8,9 @@ export const getMatch = async (ctx: Context) => {
 
     // cek uuid yang login
     const uuid = ctx.get('uuid');
+    if(!uuid) {
+        return ctx.json({message: 'uuid not found'}, 404);
+    }
 
     const allMatchedData = [];
 
