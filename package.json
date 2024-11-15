@@ -2,7 +2,8 @@
   "name": "myapi",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch src/index.ts"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc src/index.ts --target es6 --outDir dist "
   },
   "dependencies": {
     "@hono/node-server": "^1.13.2",
