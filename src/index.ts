@@ -12,7 +12,10 @@ const app = new Hono()
 // middleware
 app.use(cors());
 app.use(secureHeaders());
-app.use(logger());
+if(process.env.HONO_ENV !== 'production'){
+  app.use(logger());
+}
+
 app.use(prettyJSON( { space: 4}));
 
 // protect bagian ini

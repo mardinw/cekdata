@@ -119,8 +119,8 @@ export const deleteAccount = async (ctx: Context, next: Next) => {
 }
 
 export const updateAccount = async( ctx: Context) => {
-    const { username, password, role, isActive} = await ctx.req.json();
-    const filter: {username?: string, password?: string, role?: string, isActive?: number} = {};
+    const { username, password, role, is_active} = await ctx.req.json();
+    const filter: {username?: string, password?: string, role?: string, is_active?: number} = {};
     const users = ctx.req.query('uuid') as string;
 
     // Hanya tambahkan nilai ke filter jika tidak undefined
@@ -137,8 +137,8 @@ export const updateAccount = async( ctx: Context) => {
         filter.role = role;
     }
 
-    if(isActive) {
-        filter.isActive = isActive;
+    if(is_active) {
+        filter.is_active = is_active;
     }
 
     const uuid = ctx.get('uuid');
