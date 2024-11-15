@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { getMatch } from "../controllers/dptController.js";
 import { deleteFile, downloadSample, excelUpload, exportMatchToExcel, getFile, listFileExcel, previewFileExcel } from "../controllers/excelController.js";
-import { deleteAccount, listAccount, loginAccount, logoutAccount, registerAccount } from "../controllers/userController.js";
+import { dataAccount, deleteAccount, listAccount, loginAccount, logoutAccount, registerAccount, updateAccount } from "../controllers/userController.js";
 
 const routes = new Hono();
 
@@ -13,6 +13,9 @@ routes.get('/signout', logoutAccount);
 // bagian data disini kena protect
 routes.get('/data/match', getMatch);
 routes.get('/data/users', listAccount);
+routes.put('/data/user', updateAccount);
+
+routes.get('/data/user', dataAccount);
 routes.delete('/data/user', deleteAccount);
 
 // ini untuk export ke excel

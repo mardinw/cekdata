@@ -1,4 +1,4 @@
-import type { RowDataPacket } from "mysql2";
+import {type RowDataPacket } from "mysql2";
 import { db } from "../utils/db.js";
 import { randomUUID } from "crypto";
 
@@ -44,7 +44,7 @@ export const updateUser = async(
         username?: string,
         password?: string,
         role?: string,
-        isActive?: number,
+        is_active?: number,
     },
     uuid?: string
 ) => {
@@ -69,9 +69,9 @@ export const updateUser = async(
             params.push(filter.role);
         }
 
-        if(filter.isActive !== undefined) {
+        if(filter.is_active !== undefined) {
             conditions.push('is_active = ?');
-            params.push(filter.isActive);
+            params.push(filter.is_active);
         }
 
         if(conditions.length > 0) {
@@ -89,5 +89,48 @@ export const updateUser = async(
 
     // eksekusi query
     const [rows] = await db.query(query, params)
+    return rows;
+}
+
+export const dataUser = async(
+    filter?: {
+        username?: string,
+        role?: string,
+        is_active?: number,
+    },
+    uuid?: string
+) => {
+    let query = 'SELECT';
+    if(filter) {
+        const conditions: string[] =[];
+
+        if(filter.username !== undefined) {
+            conditions.push('name');
+        }
+
+        if(filter.role !== undefined) {
+            conditions.push('role');
+        }
+
+        if(filter.is_active !== undefined) {
+            conditions.push('is_active');
+        }
+
+        if(conditions.length > 0) {
+            query += conditions.join(', ');
+        }
+    }
+
+    // cek kondisi jika uuid tersedia
+    query += 'FROM users WHERE id = ?';
+
+    // eksekusi query
+    const [rows] = await db.query(query, uuid)
+    return rows;
+}
+
+export const getDataUsers = async (uuid?: string) => {
+    const query = 'SELECT name as username, role, is_active FROM `users` WHERE id = ?'; 
+    const [rows] = await db.query(query, uuid);
     return rows;
 }
