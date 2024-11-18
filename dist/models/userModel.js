@@ -1,10 +1,10 @@
 import {} from "mysql2";
 import { db } from "../utils/db.js";
 import { randomUUID } from "crypto";
-export const registerUser = async (name, password) => {
+export const registerUser = async (name, password, saltStored) => {
     const userId = randomUUID();
-    const query = 'INSERT INTO users (id, name, password, role, is_active) VALUES (?, ?, ?, ?, ?)';
-    const [result] = await db.query(query, [userId, name, password, 'user', '0']);
+    const query = 'INSERT INTO users (id, name, password, salt, role, is_active) VALUES (?, ?, ?, ?, ?, ?)';
+    const [result] = await db.query(query, [userId, name, password, saltStored, 'user', '0']);
     return result;
 };
 export const loginUser = async (username) => {
@@ -36,9 +36,9 @@ export const updateUser = async (filter, uuid) => {
             conditions.push('name = ?');
             params.push(filter.username);
         }
-        if (filter.password !== undefined) {
-            conditions.push('password = ?');
-            params.push(filter.password);
+        if (filter.password !== undefined && filter.saltStored !== undefined) {
+            conditions.push('password = ?, salt =  ?');
+            params.push(filter.password, filter.saltStored);
         }
         if (filter.role !== undefined) {
             conditions.push('role = ?');

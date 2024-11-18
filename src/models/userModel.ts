@@ -5,10 +5,11 @@ import { randomUUID } from "crypto";
 export const registerUser = async (
     name: string, 
     password: string,
+    saltStored: string,
 ) => {
     const userId = randomUUID();
-    const query = 'INSERT INTO users (id, name, password, role, is_active) VALUES (?, ?, ?, ?, ?)';
-    const [result] = await db.query(query, [userId, name, password, 'user', '0']);
+    const query = 'INSERT INTO users (id, name, password, salt, role, is_active) VALUES (?, ?, ?, ?, ?, ?)';
+    const [result] = await db.query(query, [userId, name, password, saltStored, 'user', '0']);
     return result;
 }
 
@@ -44,9 +45,10 @@ export const updateUser = async(
         username?: string,
         password?: string,
         role?: string,
+        saltStored?: string,
         is_active?: number,
     },
-    uuid?: string
+    uuid?: string,
 ) => {
     let query = 'UPDATE users';
     let params: (string|number)[] = [];
@@ -59,9 +61,9 @@ export const updateUser = async(
             params.push(filter.username);
         }
 
-        if(filter.password !== undefined) {
-            conditions.push('password = ?');
-            params.push(filter.password);
+        if(filter.password !== undefined && filter.saltStored !== undefined) {
+            conditions.push('password = ?, salt =  ?');
+            params.push(filter.password, filter.saltStored);
         }
 
         if(filter.role !== undefined) {

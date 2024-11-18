@@ -1,19 +1,28 @@
 import type { Context, Next } from "hono";
-import bcrypt from 'bcryptjs';
 import { dataUser, deleteUser, getDataUsers, getRoleUser, listUser, loginUser, registerUser, updateUser } from "../models/userModel.js";
 import { createToken } from "../helpers/token.js";
 import { deleteSessions, findSessionByUserId, insertSessions } from "../models/sessionModel.js";
-
+import crypto from 'crypto';
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 // ubah menjadi 5 menit
 const JWT_EXPIRATION = 5 * 60;
 
+const hashPassword = async (password: string, salt: string) : Promise<string> => {
+    return crypto.createHash('sha256').update(password + salt).digest('hex');
+}
+
+const verifyPassword = async (inputPassword: string, storedHash: string, salt:string ): Promise<boolean> => {
+    const inputHash = hashPassword(inputPassword, salt);
+    return await inputHash === storedHash;
+}
+
 export const registerAccount = async( ctx: Context) => {
     const { username, password} = await ctx.req.json();
+    const saltStored: string = crypto.randomBytes(16).toString('hex');
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await registerUser(username, hashedPassword);
+    const storedHash: string =  await hashPassword(password, saltStored);
+    await registerUser(username, storedHash, saltStored);
 
     return ctx.json({
         message: 'user registered successfully'
@@ -28,8 +37,8 @@ export const loginAccount = async (ctx: Context) => {
 
     const user = users[0];
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-        return ctx.json({ message: 'invalid email or password'}, 401);
+    if(!user || !(await verifyPassword(password, user.password, user.salt))) {
+        return ctx.json({message: 'invalid email or password'}, 401);
     }
 
     if (!user.is_active) {
@@ -119,17 +128,20 @@ export const deleteAccount = async (ctx: Context, next: Next) => {
 
 export const updateAccount = async( ctx: Context) => {
     const { username, password, role, is_active} = await ctx.req.json();
-    const filter: {username?: string, password?: string, role?: string, is_active?: number} = {};
+    const filter: {username?: string, password?: string, saltStored: string, role?: string, is_active?: number} = {
+        saltStored: ""
+    };
     const users = ctx.req.query('uuid') as string;
+    const saltStored: string = crypto.randomBytes(16).toString('hex');
 
     // Hanya tambahkan nilai ke filter jika tidak undefined
     if (username) {
         filter.username = username;
     }
 
-    if (password) {
-        // Hash password jika ada nilai baru yang diberikan
-        filter.password = await bcrypt.hash(password, 10);
+    if (password && saltStored) {
+        filter.password =  await hashPassword(password, saltStored);
+        filter.saltStored = saltStored;
     }
 
     if (role) {

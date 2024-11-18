@@ -1,15 +1,22 @@
-import bcrypt from 'bcrypt';
 import { dataUser, deleteUser, getDataUsers, getRoleUser, listUser, loginUser, registerUser, updateUser } from "../models/userModel.js";
 import { createToken } from "../helpers/token.js";
 import { deleteSessions, findSessionByUserId, insertSessions } from "../models/sessionModel.js";
-import { verify } from "hono/jwt";
+import crypto from 'crypto';
 const JWT_SECRET = process.env.JWT_SECRET;
 // ubah menjadi 5 menit
 const JWT_EXPIRATION = 5 * 60;
+const hashPassword = async (password, salt) => {
+    return crypto.createHash('sha256').update(password + salt).digest('hex');
+};
+const verifyPassword = async (inputPassword, storedHash, salt) => {
+    const inputHash = hashPassword(inputPassword, salt);
+    return await inputHash === storedHash;
+};
 export const registerAccount = async (ctx) => {
     const { username, password } = await ctx.req.json();
-    const hashedPassword = await bcrypt.hash(password, 10);
-    await registerUser(username, hashedPassword);
+    const saltStored = crypto.randomBytes(16).toString('hex');
+    const storedHash = await hashPassword(password, saltStored);
+    await registerUser(username, storedHash, saltStored);
     return ctx.json({
         message: 'user registered successfully'
     });
@@ -19,7 +26,7 @@ export const loginAccount = async (ctx) => {
     // cari user dari email
     const users = await loginUser(username);
     const user = users[0];
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await verifyPassword(password, user.password, user.salt))) {
         return ctx.json({ message: 'invalid email or password' }, 401);
     }
     if (!user.is_active) {
@@ -98,15 +105,18 @@ export const deleteAccount = async (ctx, next) => {
 };
 export const updateAccount = async (ctx) => {
     const { username, password, role, is_active } = await ctx.req.json();
-    const filter = {};
+    const filter = {
+        saltStored: ""
+    };
     const users = ctx.req.query('uuid');
+    const saltStored = crypto.randomBytes(16).toString('hex');
     // Hanya tambahkan nilai ke filter jika tidak undefined
     if (username) {
         filter.username = username;
     }
-    if (password) {
-        // Hash password jika ada nilai baru yang diberikan
-        filter.password = await bcrypt.hash(password, 10);
+    if (password && saltStored) {
+        filter.password = await hashPassword(password, saltStored);
+        filter.saltStored = saltStored;
     }
     if (role) {
         filter.role = role;

@@ -5,6 +5,7 @@ export const getDataImport = async (file, users) => {
         id: row.id,
         nama: row.nama,
         ttl: row.ttl,
+        alamat: row.alamat,
         kecamatan: row.kecamatan,
         kelurahan: row.kelurahan,
         file: row.file,
@@ -19,7 +20,7 @@ export const getDataFileByUUIDOnly = async (uuid) => {
     return result;
 };
 export const previewDataFileByUUID = async (uuid, fileName) => {
-    const query = 'SELECT nama, dob, kecamatan, kelurahan, file FROM data_import where users = ? AND file = ?';
+    const query = 'SELECT nama, dob, alamat, kecamatan, kelurahan, file FROM data_import where users = ? AND file = ?';
     const [result] = await db.query(query, [uuid, fileName]);
     return result;
 };

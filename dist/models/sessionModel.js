@@ -1,5 +1,4 @@
 import { db } from "../utils/db.js";
-import cron from 'node-cron';
 export const insertSessions = async (uuid, token, expireAt) => {
     const query = 'INSERT INTO sessions (user_id, token, expires_at) VALUES( ?, ?, ?)';
     const [result] = await db.query(query, [uuid, token, expireAt]);
@@ -36,8 +35,4 @@ export const deleteExpiredSessions = async () => {
     const query = 'DELETE FROM sessions WHERE expires_at < ?';
     await db.query(query, [now]);
 };
-// jadwal schedule auto delete
-cron.schedule('0 * * * *', () => {
-    console.log('Running scheduled job to delete expired sessions');
-    deleteExpiredSessions();
-});
+setInterval(deleteExpiredSessions, 300000);

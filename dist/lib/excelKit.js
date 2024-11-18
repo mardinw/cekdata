@@ -18,10 +18,11 @@ export class ExcelKit {
                     dob = dob?.toString() || '';
                 }
                 const gender = row.getCell(3).text.toUpperCase();
-                const kecamatan = row.getCell(4).text.toUpperCase();
-                const kelurahan = row.getCell(5).text.toUpperCase();
+                const alamat = row.getCell(4).text.toUpperCase();
+                const kecamatan = row.getCell(5).text.toUpperCase();
+                const kelurahan = row.getCell(6).text.toUpperCase();
                 const ttl = processDOBAndGender(dob, gender);
-                dataToInsert.push([nama, dob, gender, kecamatan, kelurahan, ttl, fileName, uuid]);
+                dataToInsert.push([nama, dob, gender, alamat, kecamatan, kelurahan, ttl, fileName, uuid]);
             }
         });
         return dataToInsert;
@@ -33,6 +34,7 @@ export class ExcelKit {
         // Menambahkan header kolom
         worksheet.columns = [
             { header: 'Nama Data', key: 'nama_data', width: 20 },
+            { header: 'Alamat Data', key: 'alamat_data', width: 20 },
             { header: 'Kecamatan Data', key: 'kecamatan_data', width: 20 },
             { header: 'Kelurahan Data', key: 'kelurahan_data', width: 20 },
             { header: 'Nama Match', key: 'nama', width: 20 },
@@ -55,6 +57,7 @@ export class ExcelKit {
             { header: 'nama', key: 'nama', width: 30 },
             { header: 'dob', key: 'dob', width: 30 },
             { header: 'gender', key: 'gender', width: 10 },
+            { header: 'alamat', key: 'alamat', width: 10 },
             { header: 'kecamatan', key: 'kecamatan', width: 30 },
             { header: 'kelurahan', key: 'kelurahan', width: 30 },
         ];
@@ -63,6 +66,7 @@ export class ExcelKit {
             nama: 'mardin',
             dob: '1991-01-17',
             gender: 'L',
+            alamat: 'Jl. Lemah Hegar no. 99',
             kecamatan: 'kiaracondong',
             kelurahan: 'sukapura',
         });
