@@ -3,6 +3,10 @@
     "target": "ESNext",
     "module": "NodeNext",
     "strict": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": [
