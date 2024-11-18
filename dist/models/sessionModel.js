@@ -35,4 +35,4 @@ export const deleteExpiredSessions = async () => {
     const query = 'DELETE FROM sessions WHERE expires_at < ?';
     await db.query(query, [now]);
 };
-setInterval(deleteExpiredSessions, 300000);
+setInterval(deleteExpiredSessions, 15 * 60 * 1000);
