@@ -25,7 +25,7 @@ export const previewDataFileByUUID = async (uuid, fileName) => {
     return result;
 };
 export const createDataImport = async (dataToInsert) => {
-    const query = 'INSERT INTO data_import(nama, dob, gender, kecamatan, kelurahan, ttl, file, users) VALUES ?';
+    const query = 'INSERT INTO data_import(nama, dob, gender, alamat, kecamatan, kelurahan, ttl, file, users) VALUES ?';
     const [result] = await db.query(query, [dataToInsert]);
     return result;
 };

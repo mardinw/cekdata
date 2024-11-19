@@ -9,7 +9,7 @@ import { authMiddleware } from './middlewares/auth.js';
 const app = new Hono();
 // middleware
 app.use('*', cors({
-    origin: 'http://103.217.145.5', // atau '*', jika ingin mengizinkan semua asal
+    origin: '*', // atau '*', jika ingin mengizinkan semua asal
     allowMethods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
 }));

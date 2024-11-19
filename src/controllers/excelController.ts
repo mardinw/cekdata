@@ -16,42 +16,84 @@ export const excelUpload = async(ctx: Context) => {
 
     // ambil uuid
     const uuid = ctx.get('uuid');
+
+     // Ensure the file is a Buffer, if it isn't already
+     let fileBuffer: Buffer;
+     if (Buffer.isBuffer(file)) {
+         fileBuffer = file;
+     } else if (file instanceof ArrayBuffer) {
+         fileBuffer = Buffer.from(file);
+     } else {
+         // In case file is in any other format, treat it as a stream or reject
+         return ctx.json({ message: 'Invalid file format' }, 400);
+     }
+ 
+     const fileName = file.name.toLowerCase();
+ 
+     if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
+         return ctx.json({ message: 'file bukan excel' }, 400);
+     }
+ 
+     const fileNameNow = `upload_${Date.now()}.xlsx`;
+     const filePath = path.join(process.cwd(), 'uploads', fileNameNow);
+ 
+     try {
+         // Write the file to disk
+         await fs.promises.writeFile(filePath, fileBuffer);
+ 
+         const uploader = new ExcelKit();
+ 
+         // Process the uploaded file
+         const dataToInsert = await uploader.handleExcelUpload(fileBuffer, fileNameNow, uuid);
+ 
+         // Insert the data into the database
+         await createDataImport(dataToInsert);
+ 
+         // Delete the uploaded file after processing
+         await fs.promises.unlink(filePath);
+ 
+         return ctx.json({ message: 'file berhasil di upload dan data dimasukkan ke database' }, 200);
+     } catch (error) {
+         console.error('Error membaca atau memproses file:', error);
+         return ctx.json({ message: 'Gagal memproses file excel' }, 500);
+     }
+  
     
-    if (file instanceof File) {
-        // menggunakan arraybuffer
-        const arraybuffer = await file.arrayBuffer();
-        const fileBuffer = Buffer.from(arraybuffer);
+    // if (file instanceof File) {
+    //     // menggunakan arraybuffer
+    //     const arraybuffer = await file.arrayBuffer();
+    //     const fileBuffer = Buffer.from(arraybuffer);
 
-        // cek apakah nama file mengandung ekstensi .xlsx atau .xls
-        const fileName = file.name.toLowerCase()
+    //     // cek apakah nama file mengandung ekstensi .xlsx atau .xls
+    //     const fileName = file.name.toLowerCase()
         
-        if(!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
-            return ctx.json({message: 'file bukan excel'}, 400);
-        }
+    //     if(!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
+    //         return ctx.json({message: 'file bukan excel'}, 400);
+    //     }
 
-        const fileNameNow = `upload_${Date.now()}.xlsx`;
+    //     const fileNameNow = `upload_${Date.now()}.xlsx`;
 
-        const filePath = path.join(process.cwd(), 'uploads', fileNameNow);
-        await fs.promises.writeFile(filePath, fileBuffer);
+    //     const filePath = path.join(process.cwd(), 'uploads', fileNameNow);
+    //     await fs.promises.writeFile(filePath, fileBuffer);
         
-        const uploader = new ExcelKit();
+    //     const uploader = new ExcelKit();
 
-        // Panggil ExcelUploader untuk mengolah file
-        const dataToInsert = await uploader.handleExcelUpload(fileBuffer, fileNameNow, uuid);
-        try {
-            await createDataImport(dataToInsert);
+    //     // Panggil ExcelUploader untuk mengolah file
+    //     const dataToInsert = await uploader.handleExcelUpload(fileBuffer, fileNameNow, uuid);
+    //     try {
+    //         await createDataImport(dataToInsert);
             
-            // ketika berhasil import file maka dihapus
-            await fs.promises.unlink(filePath);
-            return ctx.json({message: 'file berhasil di upload dan data dimasukkan ke database'}, 200);
-        } catch (error) {
-            console.error('Error membaca atau memproses file:', error);
-            return ctx.json({message: 'Gagal memproses file excel'}, 500);
-        }
+    //         // ketika berhasil import file maka dihapus
+    //         await fs.promises.unlink(filePath);
+    //         return ctx.json({message: 'file berhasil di upload dan data dimasukkan ke database'}, 200);
+    //     } catch (error) {
+    //         console.error('Error membaca atau memproses file:', error);
+    //         return ctx.json({message: 'Gagal memproses file excel'}, 500);
+    //     }
         
-    } else {
-        return ctx.json({message: 'file tidak valid'}, 400);
-    }
+    // } else {
+    //     return ctx.json({message: 'file tidak valid'}, 400);
+    // }
 }
 
 export const listFileExcel = async (ctx: Context) => {
