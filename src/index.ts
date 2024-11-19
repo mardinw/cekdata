@@ -11,7 +11,7 @@ const app = new Hono()
 
 // middleware
 app.use('*',cors({
-    origin: ['http://localhost:3000', 'http://103.217.145.5/'], // atau '*', jika ingin mengizinkan semua asal
+    origin: ['*'], // atau '*', jika ingin mengizinkan semua asal
     allowMethods: ['GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
   }
