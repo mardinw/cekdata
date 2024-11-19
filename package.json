@@ -7,9 +7,11 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.13.2",
-    "hono": "^4.6.6"
+    "hono": "^4.6.6",
+    "multer": "^1.4.5-lts.1"
   },
   "devDependencies": {
+    "@types/multer": "^1.4.12",
     "@types/node": "^20.11.17",
     "dotenv": "^16.4.5",
     "exceljs": "^4.4.0",
