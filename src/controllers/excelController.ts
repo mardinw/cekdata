@@ -43,7 +43,6 @@ export const excelUpload = async(ctx: Context) => {
 
         await createDataImport(dataToInsert);
         await fs.promises.unlink(filePath);
-        console.log(dataToInsert);
         return ctx.json({ message: 'File berhasil diupload'}); 
     } catch (error) {
         console.error('Error handling upload:', error);
