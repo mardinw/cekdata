@@ -2,8 +2,9 @@ import type { Context } from "hono";
 import path from "path";
 import fs from "fs";
 import { ExcelKit } from "../lib/excelKit.js";
-import { createDataImport, deleteDataImport, getDataFileByUUIDOnly, getDataImport, getFileDataImport, previewDataFileByUUID } from "../models/dataImport.js";
+import { createDataImport, deleteDataImport, getDataFileByAdminOnly, getDataFileByUUIDOnly, getDataImport, getFileDataImport, previewDataFileByAdmin, previewDataFileByUUID } from "../models/dataImport.js";
 import { getMatchData } from "../models/matchData.js";
+import { getRoleUser } from "../models/userModel.js";
 
 
 export const excelUpload = async(ctx: Context) => {
@@ -55,8 +56,14 @@ export const listFileExcel = async (ctx: Context) => {
     // cek uuid yang login
     const uuid = ctx.get('uuid');
     try {
-        const data = await getDataFileByUUIDOnly(uuid);
-        return ctx.json(data);
+        const isAdmin = await getRoleUser(uuid);
+        if(isAdmin[0].role === 'admin') {
+            let data = await getDataFileByAdminOnly();
+            return ctx.json(data);
+        } else {
+            let data = await getDataFileByUUIDOnly(uuid);
+            return ctx.json(data);
+        }
     } catch (error) {
         console.error("Error:", error);
         return;
@@ -70,8 +77,14 @@ export const previewFileExcel = async (ctx: Context) => {
     // cek uuid yang login
     const uuid = ctx.get('uuid');
     try {
-        const data = await previewDataFileByUUID(uuid, fileName);
-        return ctx.json(data);
+        const isAdmin = await getRoleUser(uuid);
+        if(isAdmin[0].role === 'admin') {
+            let data = await previewDataFileByAdmin(fileName);
+            return ctx.json(data);
+        } else {
+            let data = await previewDataFileByUUID(uuid, fileName);
+            return ctx.json(data);
+        }
     } catch (error) {
         console.error("Error:", error);
         return;

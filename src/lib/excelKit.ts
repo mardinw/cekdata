@@ -9,6 +9,10 @@ export class ExcelKit {
         const worksheet = workbook.worksheets[0];
         const dataToInsert: string[][] = [];
         
+        if(worksheet.rowCount > 101) {
+            throw new Error("File excel memiliki lebih dari 100 baris data!");
+        }
+        
         worksheet.eachRow((row, rowNumber) => {
             if(rowNumber > 1) {
                 const nama = row.getCell(1).text.toUpperCase();
@@ -42,11 +46,11 @@ export class ExcelKit {
         worksheet.columns = [
             {header: 'Nama Data', key: 'nama_data', width: 20 },
             {header: 'Alamat Data', key: 'alamat_data', width: 20 },
-            { header: 'Kecamatan Data', key: 'kecamatan_data', width: 20 },
             { header: 'Kelurahan Data', key: 'kelurahan_data', width: 20 },
+            { header: 'Kecamatan Data', key: 'kecamatan_data', width: 20 },
             { header: 'Nama Match', key: 'nama', width: 20 },
+            { header: 'Kelurahan Match', key: 'kelurahan', width: 20 },
             { header: 'Kecamatan Match', key: 'kecamatan', width: 20 },
-            { header: 'Kelurahan Match', key: 'kelurahan', width: 20 }
         ];
 
         // memassukan data array ke worksheet
@@ -70,8 +74,8 @@ export class ExcelKit {
             { header: 'dob', key: 'dob', width: 30 },
             { header: 'gender', key: 'gender', width: 10 },
             { header: 'alamat', key: 'alamat', width: 10 },
-            { header: 'kecamatan', key: 'kecamatan', width: 30 },
             { header: 'kelurahan', key: 'kelurahan', width: 30 },
+            { header: 'kecamatan', key: 'kecamatan', width: 30 },
         ];
 
         // Menambahkan data
@@ -80,8 +84,8 @@ export class ExcelKit {
             dob: '1991-01-17', 
             gender: 'L',
             alamat: 'Jl. Lemah Hegar no. 99', 
-            kecamatan: 'kiaracondong',
             kelurahan: 'sukapura',
+            kecamatan: 'kiaracondong',
         });
 
         const buffer = await workbook.xlsx.writeBuffer();
