@@ -25,14 +25,27 @@ export const getDataImport = async (file?: string, users?: string) => {
 }
 
 export const getDataFileByUUIDOnly = async( uuid: string) => {
-    const query = 'SELECT count(file) as jumlah_data, file as nama_file, users FROM data_import WHERE users = ? GROUP BY file, users';
+    // const query = 'SELECT count(file) as jumlah_data, file as nama_file, users FROM data_import WHERE users = ? GROUP BY file, users';
+    const query = 'SELECT count(t1.file) as jumlah_data, t1.file as nama_file, t2.name from data_import t1 INNER JOIN users t2 ON t1.users = t2.id WHERE t1.users = ? GROUP BY t1.file, t1.users';
     const [result] = await db.query(query, [uuid])
+    return result;
+}
+
+export const getDataFileByAdminOnly = async() => {
+    const query = 'SELECT count(t1.file) as jumlah_data, t1.file as nama_file, t2.name from data_import t1 INNER JOIN users t2 ON t1.users = t2.id GROUP BY t1.file, t1.users';
+    const [result] = await db.query(query)
     return result;
 }
 
 export const previewDataFileByUUID = async( uuid: string, fileName?: string) => {
     const query = 'SELECT nama, dob, alamat, kecamatan, kelurahan, file FROM data_import where users = ? AND file = ?';
     const [result] = await db.query(query, [uuid, fileName]);
+    return result;
+}
+
+export const previewDataFileByAdmin = async(fileName?: string) => {
+    const query = 'SELECT nama, dob, alamat, kecamatan, kelurahan, file FROM data_import where file = ?';
+    const [result] = await db.query(query, [fileName]);
     return result;
 }
 
