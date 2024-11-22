@@ -4,15 +4,15 @@ export const insertSubscriptions = async(
     uuid: string,
     limit_count: number,
     is_active: number,
-    expireAt: number,
+    createdAt: number,
 ) => {
-    const query = 'INSERT INTO subscriptions(users, limit_count, is_active, expire_at) VALUES(?, ?, ?, ?, ?)';
-    const [result]  =  await db.query(query, [uuid, limit_count, is_active, expireAt]);
+    const query = 'INSERT INTO subscriptions(users, limit_count, is_active, created_at) VALUES(?, ?, ?, ?)';
+    const [result]  =  await db.query(query, [uuid, limit_count, is_active, createdAt]);
     return result;
 }
 
 export const setActiveSubscriptions = async( 
-    is_active: number,
+    is_active: boolean,
     uuid: string,
 ) => {
     const query = 'UPDATE subscriptions SET is_active = ? WHERE users = ?';

@@ -1,8 +1,8 @@
 import type { Context, Next } from "hono";
-import { dataUser, deleteUser, getDataUsers, getRoleUser, listUser, loginUser, registerUser, updateUser } from "../models/userModel.js";
+import { deleteUser, getDataUsers, getRoleUser, listUser, loginUser, registerUser, updateUser } from "../models/userModel.js";
 import { createToken } from "../helpers/token.js";
 import { deleteSessions, findSessionByUserId, insertSessions } from "../models/sessionModel.js";
-import crypto from 'crypto';
+import crypto, { randomUUID } from 'crypto';
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
 // ubah menjadi 5 menit
@@ -22,7 +22,8 @@ export const registerAccount = async( ctx: Context) => {
     const saltStored: string = crypto.randomBytes(16).toString('hex');
 
     const storedHash: string =  await hashPassword(password, saltStored);
-    await registerUser(username, storedHash, saltStored);
+    const uuid = randomUUID();
+    await registerUser( uuid, username, storedHash, saltStored);
 
     return ctx.json({
         message: 'user registered successfully'
