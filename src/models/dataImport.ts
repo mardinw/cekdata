@@ -23,6 +23,27 @@ export const getDataImport = async (file?: string, users?: string) => {
 
     return data;
 }
+export const getDataImportByAdmin = async (file?: string) => {
+    const [rows] = await db.query<RowDataPacket[]>(
+        'SELECT * FROM data_import WHERE file = ?',
+        [file]
+    );
+
+    
+    const data: DataImport[] = rows.map(row => ({
+        id: row.id,
+        nama: row.nama,
+        ttl: row.ttl,
+        alamat: row.alamat,
+        kecamatan: row.kecamatan,
+        kelurahan: row.kelurahan,
+        file: row.file,
+        users: row.users,
+        gender: row.gender
+    }))
+
+    return data;
+}
 
 export const getDataFileByUUIDOnly = async( uuid: string) => {
     const query = 'SELECT count(t1.file) as jumlah_data, t1.file as nama_file, t2.name from data_import t1 INNER JOIN users t2 ON t1.users = t2.id WHERE t1.users = ? GROUP BY t1.file, t1.users';
