@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { getMatch } from "../controllers/dptController.js";
 import { deleteFile, downloadSample, excelUpload, exportMatchToExcel, getFile, listFileExcel, previewFileExcel } from "../controllers/excelController.js";
 import { dataAccount, deleteAccount, listAccount, loginAccount, logoutAccount, registerAccount, updateAccount } from "../controllers/userController.js";
+import { activationSubscriptions, createSubscriptions } from "../controllers/subscriptionsController.js";
 
 const routes = new Hono();
 
@@ -30,4 +31,7 @@ routes.get('/data/read', previewFileExcel);
 routes.get('/data/all', listFileExcel);
 routes.get('/data/sample', downloadSample);
 
+// untuk subscriptions
+routes.post('/data/subscriptions', createSubscriptions);
+routes.put('/data/subscriptions', activationSubscriptions);
 export default routes;

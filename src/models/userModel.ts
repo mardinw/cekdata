@@ -1,15 +1,14 @@
 import {type RowDataPacket } from "mysql2";
 import { db } from "../utils/db.js";
-import { randomUUID } from "crypto";
 
 export const registerUser = async (
+    uuid: string,
     name: string, 
     password: string,
     saltStored: string,
 ) => {
-    const userId = randomUUID();
     const query = 'INSERT INTO users (id, name, password, salt, role, is_active) VALUES (?, ?, ?, ?, ?, ?)';
-    const [result] = await db.query(query, [userId, name, password, saltStored, 'user', '0']);
+    const [result] = await db.query(query, [uuid, name, password, saltStored, 'user', '0']);
     return result;
 }
 
