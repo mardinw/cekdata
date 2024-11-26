@@ -1,7 +1,6 @@
 import type { Context } from "hono";
-import { insertSubscriptions, setActiveSubscriptions } from '../models/subscriptionsModel.js';
+import { getSubscriptionsByAdmin, insertSubscriptions, setActiveSubscriptions } from '../models/subscriptionsModel.js';
 import type { ActivationRequest } from "../dtos/activationRequest.js";
-import { findSessionByTokenId } from "../models/sessionModel.js";
 import { decode } from "hono/jwt";
 import { getRoleUser } from "../models/userModel.js";
 
@@ -54,4 +53,28 @@ export const activationSubscriptions = async(ctx : Context) => {
     } else {
         return ctx.json({error: 'permission denied'}, 403)
     }
+}
+
+export const getSubscriptions = async(ctx: Context) => {
+    const authorization = ctx.req.header('Authorization');
+    if(!authorization || !authorization.startsWith('Bearer ')) {
+        return ctx.json({message: 'Unathorized'}, 401);
+    }
+
+    const token = authorization.split(' ')[1];
+    const { payload} = decode(token);
+    const isAdmin = await getRoleUser(`${payload.uuid}`);
+    
+    if(isAdmin[0].role === 'admin') {
+        try {
+            const res = await getSubscriptionsByAdmin();
+            return ctx.json(res);
+        } catch (error) {
+            console.error(error);
+            return ctx.json({error: 'internal server error'}, 500);
+        }
+    } else {
+        return ctx.json({error: 'permission denied'}, 403)
+    }
+
 }
