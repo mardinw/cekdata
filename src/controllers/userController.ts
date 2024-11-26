@@ -129,75 +129,119 @@ export const deleteAccount = async (ctx: Context, next: Next) => {
 
 export const updateAccount = async( ctx: Context) => {
     const { username, password, role, is_active} = await ctx.req.json();
-    const filter: {username?: string, password?: string, saltStored: string, role?: string, is_active?: number} = {
-        saltStored: ""
-    };
     const users = ctx.req.query('uuid') as string;
-    const saltStored: string = crypto.randomBytes(16).toString('hex');
-
-    // Hanya tambahkan nilai ke filter jika tidak undefined
-    if (username) {
-        filter.username = username;
-    }
-
-    if (password && saltStored) {
-        filter.password =  await hashPassword(password, saltStored);
-        filter.saltStored = saltStored;
-    }
-
-    if (role) {
-        filter.role = role;
-    }
-
-    if(is_active) {
-        filter.is_active = is_active;
-    }
-
     const uuid = ctx.get('uuid');
     if(!uuid) {
         return ctx.json({message: 'uuid not found'}, 404);
     }
-    
+
+    const filter: {
+        username?: string, 
+        password?: string, 
+        saltStored?: string, 
+        role?: string, 
+        is_active?: number
+    } = {};
+
+    if(password) {
+        const saltStored: string = crypto.randomBytes(16).toString('hex');
+        filter.password = await hashPassword(password, saltStored);
+        filter.saltStored = saltStored;
+    }
+
+    // Hanya tambahkan nilai ke filter jika tidak undefined
+    if (username)filter.username = username;
+    if(role) filter.role = role;
+    if(is_active !== undefined) filter.is_active = is_active;
+
     let userRole = "";
+     try {
+        const roleIdCheck = await getRoleUser(uuid);
+        if (roleIdCheck.length > 0) {
+            userRole = roleIdCheck[0]?.role || '';
+        }
 
-    const roleIdCheck = await getRoleUser(uuid);
-    roleIdCheck.forEach(user => {
-        userRole = user.role;
-    })
+        console.log('Filter:', filter);
 
-    if(users === uuid || userRole === 'admin' ) {
-        try {
+        if (users === uuid || userRole === 'admin') {
             await updateUser(filter, users);
-            return ctx.json({message: 'update user success'}, 200);
-        } catch(error) {
-            console.error('error on process update:', error);
-            return ctx.json({message: error});
-        }
-    }
-}
-
-export const dataAccount = async( ctx: Context) => {
-    const uuid = ctx.req.query('uuid');
-
-    const fields = ctx.req.query('fields');
-
-    let responseData: any = {};
-
-    if(fields) {
-        const fieldList = fields.split(',');
-        const res = await getDataUsers(uuid);
-        if(res && res[0]) {
-            fieldList.forEach((field) => {
-                if(res[0].hasOwnProperty(field)) {
-                    responseData[field] = res[0][field];
-                }
-            });
+            return ctx.json({ message: 'Update user success' }, 200);
         } else {
-            return ctx.json({message: 'user not found'});
+            return ctx.json({ message: 'Unauthorized access' }, 403);
         }
-        return ctx.json(responseData);
-    } else {
-        return ctx.json(res[0]);
-    }
+    } catch (error) {
+        console.error('Error during update:', error);
 
+        // Pastikan pesan error aman untuk ditampilkan
+        return ctx.json(
+            { message: 'Failed to update user. Please contact support.' },
+            500
+        );
+    }
 }
+
+// export const dataAccount = async( ctx: Context) => {
+//     const uuid = ctx.req.query('uuid');
+
+//     const fields = ctx.req.query('fields');
+
+//     let responseData: any = {};
+
+//     if(fields) {
+//         const fieldList = fields.split(',');
+//         const res = await getDataUsers(uuid);
+//         console.log(res);
+//         if(res && res[0]) {
+//             fieldList.forEach((field) => {
+//                 if(res[0].hasOwnProperty(field)) {
+//                     responseData[field] = res[0][field];
+//                 }
+//             });
+//         } else {
+//             return ctx.json({message: 'user not found'});
+//         }
+//         return ctx.json(responseData);
+//     } else {
+//         return ctx.json(res[0]);
+//     }
+
+// }
+export const dataAccount = async (ctx: Context) => {
+    try {
+        const uuid = ctx.req.query('uuid');
+        const fields = ctx.req.query('fields');
+
+        // Validasi input UUID
+        if (!uuid) {
+            return ctx.json({ message: 'UUID is required' }, 400);
+        }
+
+        // Ambil data pengguna berdasarkan UUID
+        const userData = await getDataUsers(uuid);
+
+        if (!userData || !userData[0]) {
+            return ctx.json({ message: 'User not found' }, 404);
+        }
+
+        const user = userData[0]; // Data user yang ditemukan
+
+        // Jika 'fields' tersedia, hanya kembalikan data berdasarkan field yang diminta
+        if (fields) {
+            const fieldList = fields.split(',');
+            const responseData = fieldList.reduce((result: Record<string, any>, field) => {
+                if (field in user) {
+                    result[field] = user[field];
+                }
+                return result;
+            }, {});
+
+            return ctx.json(responseData);
+        }
+
+        // Jika 'fields' tidak tersedia, kembalikan seluruh data pengguna
+        return ctx.json(user);
+    } catch (error) {
+        console.error('Error fetching user data:', error);
+        return ctx.json({ message: 'Internal Server Error' }, 500);
+    }
+};
