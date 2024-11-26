@@ -29,7 +29,7 @@ export const getSubscriptionsByUUID = async(
 }
 
 export const getSubscriptionsByAdmin = async() => {
-    const query = 'SELECT t1.users as uuid, t2.users as users, t1.limit_count as limit_count, t1.is_active, t1.created_at FROM subscriptions t1 INNER JOIN users t2 ON t2.id = t1.users GROUP BY t1.users';
+    const query = 'SELECT t1.users as uuid, t2.name as name, t1.limit_count as limit_count, t1.is_active, t1.created_at FROM subscriptions t1 INNER JOIN users t2 ON t2.id = t1.users GROUP BY t1.users';
     const [result] = await db.query(query);
     return result;
 }

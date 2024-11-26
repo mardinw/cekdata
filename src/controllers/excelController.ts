@@ -47,7 +47,7 @@ export const excelUpload = async(ctx: Context) => {
         return ctx.json({ message: 'File berhasil diupload'}); 
     } catch (error) {
         console.error('Error handling upload:', error);
-        return ctx.json({ message: 'Internal server error' }, 500);
+        return ctx.json({ error: 'Invalid data provided. Please check your input' }, 400);
     }
 }
 

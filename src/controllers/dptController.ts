@@ -1,6 +1,8 @@
 import { getDataImport } from './../models/dataImport.js';
 import type { Context } from "hono";
 import { getMatchData } from '../models/matchData.js';
+import { decode } from 'hono/jwt';
+import { getRoleUser } from '../models/userModel.js';
 
 
 export const getMatch = async (ctx: Context) => {
@@ -13,17 +15,32 @@ export const getMatch = async (ctx: Context) => {
     }
 
     const allMatchedData = [];
-
-    // This is for get data from file import
-    const dataImport = await getDataImport(file, uuid);
-
-    // Condition for get piece item to match data on table dpt
-    for( const item of dataImport) {
-        const { nama, ttl} = item;
-        const matchedData = await getMatchData(nama, ttl);
-        allMatchedData.push(...matchedData);
+   
+    // if user is admin
+    const authorization = ctx.req.header('Authorization');
+    if(!authorization || !authorization.startsWith('Bearer ')) {
+        return ctx.json({message: 'Unathorized'}, 401);
     }
 
-    // result all data match
-    return ctx.json(allMatchedData);
+    const token = authorization.split(' ')[1];
+    const { payload} = decode(token);
+    const isAdmin = await getRoleUser(`${payload.uuid}`);
+
+    if(isAdmin[0].role === 'admin' || uuid) {
+        // This is for get data from file import
+        const dataImport = await getDataImport(file, uuid);
+
+        // Condition for get piece item to match data on table dpt
+        for( const item of dataImport) {
+            const { nama, ttl} = item;
+            const matchedData = await getMatchData(nama, ttl);
+            allMatchedData.push(...matchedData);
+        }
+
+        // result all data match
+        return ctx.json(allMatchedData);
+
+    } else {
+        return ctx.json({message: 'forbidden access'}, 403);
+    }
 };
