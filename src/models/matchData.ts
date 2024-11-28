@@ -7,11 +7,11 @@ export const getMatchData = async(nama?: string, dob?: string) => {
         SELECT 
         t1.nama AS nama_data, 
         t1.alamat AS alamat_data, 
-        t1.kecamatan AS kecamatan_data, 
         t1.kelurahan AS kelurahan_data, 
+        t1.kecamatan AS kecamatan_data, 
         dpt_kpu.nama, 
-        dpt_kpu.kecamatan, 
-        dpt_kpu.kelurahan
+        dpt_kpu.kelurahan,
+        dpt_kpu.kecamatan
         FROM 
             dpt_kpu
         JOIN 

@@ -3,8 +3,8 @@ export interface DataImport {
     nama: string;
     ttl: string;
     alamat: string;
-    kecamatan: string;
     kelurahan: string;
+    kecamatan: string;
     file: string;
     users: string;
     gender: string;
