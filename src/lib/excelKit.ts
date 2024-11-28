@@ -25,12 +25,12 @@ export class ExcelKit {
 
                 const gender = row.getCell(3).text.toUpperCase();
                 const alamat = row.getCell(4).text.toUpperCase();
-                const kecamatan = row.getCell(5).text.toUpperCase();
-                const kelurahan = row.getCell(6).text.toUpperCase();
+                const kelurahan = row.getCell(5).text.toUpperCase();
+                const kecamatan = row.getCell(6).text.toUpperCase();
                 
                 const ttl = processDOBAndGender(dob, gender);
 
-                dataToInsert.push([nama, dob, gender, alamat, kecamatan, kelurahan, ttl, fileName, uuid]);
+                dataToInsert.push([nama, dob, gender, alamat, kelurahan, kecamatan, ttl, fileName, uuid]);
             }
         });
 

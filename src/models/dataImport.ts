@@ -14,8 +14,8 @@ export const getDataImport = async (file?: string, users?: string) => {
         nama: row.nama,
         ttl: row.ttl,
         alamat: row.alamat,
-        kecamatan: row.kecamatan,
         kelurahan: row.kelurahan,
+        kecamatan: row.kecamatan,
         file: row.file,
         users: row.users,
         gender: row.gender
@@ -35,8 +35,8 @@ export const getDataImportByAdmin = async (file?: string) => {
         nama: row.nama,
         ttl: row.ttl,
         alamat: row.alamat,
-        kecamatan: row.kecamatan,
         kelurahan: row.kelurahan,
+        kecamatan: row.kecamatan,
         file: row.file,
         users: row.users,
         gender: row.gender
@@ -70,7 +70,7 @@ export const previewDataFileByAdmin = async(fileName?: string) => {
 }
 
 export const createDataImport = async(dataToInsert: string[][]) => {
-    const query = 'INSERT INTO data_import(nama, dob, gender, alamat, kecamatan, kelurahan, ttl, file, users) VALUES ?';
+    const query = 'INSERT INTO data_import(nama, dob, gender, alamat, kelurahan, kecamatan, ttl, file, users) VALUES ?';
     const [result] = await db.query(query, [dataToInsert])
     return result;
 }
