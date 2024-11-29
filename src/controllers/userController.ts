@@ -180,32 +180,6 @@ export const updateAccount = async( ctx: Context) => {
     }
 }
 
-// export const dataAccount = async( ctx: Context) => {
-//     const uuid = ctx.req.query('uuid');
-
-//     const fields = ctx.req.query('fields');
-
-//     let responseData: any = {};
-
-//     if(fields) {
-//         const fieldList = fields.split(',');
-//         const res = await getDataUsers(uuid);
-//         console.log(res);
-//         if(res && res[0]) {
-//             fieldList.forEach((field) => {
-//                 if(res[0].hasOwnProperty(field)) {
-//                     responseData[field] = res[0][field];
-//                 }
-//             });
-//         } else {
-//             return ctx.json({message: 'user not found'});
-//         }
-//         return ctx.json(responseData);
-//     } else {
-//         return ctx.json(res[0]);
-//     }
-
-// }
 export const dataAccount = async (ctx: Context) => {
     try {
         const uuid = ctx.req.query('uuid');

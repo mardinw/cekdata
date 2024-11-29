@@ -1,4 +1,4 @@
 export interface ActivationRequest {
     uuid: string;
-    is_active: boolean;
+    request_limit: number;
 }

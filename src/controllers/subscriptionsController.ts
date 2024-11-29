@@ -1,15 +1,15 @@
-import type { Context } from "hono";
-import { getSubscriptionsByAdmin, insertSubscriptions, setActiveSubscriptions } from '../models/subscriptionsModel.js';
+import type { Context, Next } from "hono";
+import { getRequestLimit, getSubscriptionsByAdmin, getSubscriptionsByUUID, insertSubscriptions, setActiveSubscriptions, updateSubscriptions } from '../models/subscriptionsModel.js';
 import type { ActivationRequest } from "../dtos/activationRequest.js";
 import { decode } from "hono/jwt";
 import { getRoleUser } from "../models/userModel.js";
 
 
-export const createSubscriptions = async (ctx: Context) => {
+export const createSubscriptions = async (ctx: Context, next: Next) => {
     
     // cek uuid yang login
     const uuid = ctx.req.query('uuid');
-    const { limit_count, is_active  } = await ctx.req.json();
+    const { request_limit } = await ctx.req.json();
     if(!uuid) {
         return ctx.json({message: 'uuid not found'}, 404);
     }
@@ -17,13 +17,14 @@ export const createSubscriptions = async (ctx: Context) => {
     const created_at = Math.floor(Date.now() / 1000);
 
     try {
-        await insertSubscriptions(uuid, limit_count, is_active, created_at); 
+        await insertSubscriptions(uuid, request_limit, created_at); 
         return ctx.json({message: 'subscriptions sedang kami proses'});
         
     } catch (error) {
         console.error(error);
         return ctx.text(`${error}`);
     }
+
 };
 
 export const activationSubscriptions = async(ctx : Context) => {
@@ -37,14 +38,14 @@ export const activationSubscriptions = async(ctx : Context) => {
     const isAdmin = await getRoleUser(`${payload.uuid}`);
     // cek role is admin
     if(isAdmin[0].role === 'admin') {
+        const reqBody : ActivationRequest = await ctx.req.json<ActivationRequest>();
+        const {uuid, request_limit} = reqBody
         try {
-            const reqBody : ActivationRequest = await ctx.req.json<ActivationRequest>();
-            const {uuid, is_active} = reqBody
-            if (!uuid || typeof is_active !== 'boolean') {
+            if (!uuid || typeof request_limit !== 'number') {
                 return ctx.json({error: 'invalid input'}, 400);
             }
 
-            await setActiveSubscriptions(is_active, uuid);
+            await setActiveSubscriptions(request_limit, uuid);
             return ctx.json({message : 'subscription update success'})
         } catch (error) {
             console.error(error);
@@ -64,7 +65,8 @@ export const getSubscriptions = async(ctx: Context) => {
     const token = authorization.split(' ')[1];
     const { payload} = decode(token);
     const isAdmin = await getRoleUser(`${payload.uuid}`);
-    
+    const uuid = ctx.req.query('uuid') as string;
+
     if(isAdmin[0].role === 'admin') {
         try {
             const res = await getSubscriptionsByAdmin();
@@ -74,7 +76,28 @@ export const getSubscriptions = async(ctx: Context) => {
             return ctx.json({error: 'internal server error'}, 500);
         }
     } else {
-        return ctx.json({error: 'permission denied'}, 403)
+        try {
+            const res = await getSubscriptionsByUUID(uuid);
+            return ctx.json(res);
+        } catch (error) {
+            console.error(error);
+            return ctx.json({error: 'internal server error'}, 500);
+        }
     }
 
+}
+
+export const getRequestLimits = async(ctx: Context) => {
+    const uuid = ctx.req.query('uuid') as string;
+    if(!uuid) {
+        return ctx.json({message: 'uuid not found'}, 404);
+    }
+
+    try {
+        const res = await getRequestLimit(uuid);
+        return ctx.json(res);
+    } catch (error) {
+        console.error(error);
+        return ctx.json({error: error});
+    }
 }
