@@ -20,13 +20,13 @@ export const getMatchData = async(nama?: string, dob?: string) => {
         LEFT JOIN 
             data_import t1 
             ON filtered_tanggal_lahir.tanggal_lahir = t1.ttl
-            AND dpt_kpu.nama = t1.nama
+            AND dpt_kpu.nama LIKE CONCAT(t1.nama, '%')
         WHERE
             dpt_kpu.nama LIKE ?
         GROUP BY 
         t1.nama`,
     [`${dob}`, `${nama}%`]
-    )
+    );
 
     return rows;
 }
